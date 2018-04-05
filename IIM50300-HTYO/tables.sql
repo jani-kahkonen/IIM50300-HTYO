@@ -1,5 +1,3 @@
-mysql -u H9575 -p7ahaqDkFKfb2Oljcrm4J9avJBY0b5SR8 -h mysql.labranet.jamk.fi
-
 -- -----------------------------------------------------
 -- Table customer
 -- -----------------------------------------------------
