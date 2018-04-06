@@ -1,60 +1,153 @@
 <?php
 
-require_once 'db-init.php';
+require_once 'database/db-init.php';
+require_once 'class/class.php';
 
 session_start();
 
-function find($sql, $param, $dbh)
+function testInput($data)
 {
-	$sth = $dbh->prepare($sql);
-	$sth->execute($param);
-	return $sth->fetchAll(PDO::FETCH_NUM);
+	$data = trim($data);
+	$data = stripslashes($data);
+	return htmlspecialchars($data);
+}
+
+function checkLogData($email, $pword)
+{
+	// Default redirect.
+	$redirect = 'login.php?';
+	
+	// Check email.
+	if (empty($email))
+	{
+		$redirect .= '&emailError=Required';
+	}
+	
+	// Check pword.
+	if (empty($pword))
+	{
+		$redirect .= '&pwordError=Required';
+	}
+	
+	return $redirect;
+}
+
+function checkRegData($fname, $lname, $email, $pword)
+{
+	// Default redirect.
+	$redirect = 'register.php?';
+	
+	// Check fname.
+	if (empty($fname))
+	{
+		$redirect .= '&fnameError=Required';
+	}
+	else
+	{	
+		if (!preg_match("/^[a-zA-Z ]*$/", testInput($fname)))
+		{
+			$redirect .= '&fnameError=Only letters';
+		}
+	}
+	
+	// Check lname.
+	if (empty($lname))
+	{
+		$redirect .= '&lnameError=Required';
+	}
+	else
+	{	
+		if (!preg_match("/^[a-zA-Z ]*$/", testInput($lname)))
+		{
+			$redirect .= '&lnameError=Only letters';
+		}
+	}
+	
+	// Check email.
+	if (empty($email))
+	{
+		$redirect .= '&emailError=Required';
+	}
+	else
+	{		
+		if (!filter_var(testInput($email), FILTER_VALIDATE_EMAIL))
+		{
+			$redirect .= '&emailError=Invalid format';
+		}
+	}
+	
+	// Check pword.
+	if (empty($pword))
+	{
+		$redirect .= '&pwordError=Required';
+	}
+	
+	return $redirect . "&fname=" . testInput($fname) . "&lname=" . testInput($lname) . "&email=" . testInput($email);
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST")
 {
+	// Default redirect.
+	$redirect = null;
+	
+	// If login.
 	if(isset($_POST['login']))
 	{
-		$customerId = find('SELECT id FROM account WHERE email=:email AND pword=:pword', array(':email' => $_POST['email'], ':pword' => $_POST['pword']), $dbh);
+		$redirect = checkLogData($_POST['email'], $_POST['pword']);
 		
-		$_SESSION['customerId'] = $customerId[0][0];
-		
-		if($customerId[0][0] > 0)
+		if($redirect == 'login.php?')
 		{
-			header("Location: http://student.labranet.jamk.fi/~H9575/IIM50300-HTYO/items.php");
-			die();
-		}
-		else
-		{
-			header('Location: ' . $_SERVER['HTTP_REFERER']);
+			if(Account::isExist(array(':email' => $_POST['email'])))
+			{
+				// Get Account id and return customer id.
+				$customerId = Account::getCustomerId(array(':email' => $_POST['email'], ':pword' => $_POST['pword']), $dbh);
+				
+				if($customerId)
+				{
+					$_SESSION['customerId'] = $customerId[0];
+					
+					// Set redirect.
+					$redirect = 'account/items.php';
+				}
+				else
+				{
+					$redirect = 'login.php?loginError=Incorrect email or pword';
+				}
+			}
+			else
+			{
+				$redirect = 'login.php?loginError=Incorrect email';
+			}	
 		}
 	}
 	
+	// If register.
 	if(isset($_POST['register']))
 	{
-		$customerId = find('SELECT id FROM account WHERE email=:email', array(':email' => $_POST['email']), $dbh);
+		$redirect = checkRegData($_POST['fname'], $_POST['lname'], $_POST['email'], $_POST['pword']);
 		
-		if($customerId[0][0] > 0)
+		if($redirect == 'register.php?' . "&fname=" . $_POST['fname'] . "&lname=" . $_POST['lname'] . "&email=" . $_POST['email'])
 		{
-			header('Location: ' . $_SERVER['HTTP_REFERER']);
-		}
-		else
-		{
-			$sth = $dbh->prepare('INSERT INTO customer (fname, lname) VALUES (:fname, :lname)');
-			$sth->execute(array(':fname' => $_POST['fname'], ':lname' => $_POST['lname']));
-			$insertId = $dbh->lastInsertId();
-			
-			$sth = $dbh->prepare('INSERT INTO account (email, pword, customer_id) VALUES (:email, :pword, :customer_id)');
-			$sth->execute(array(':email' => $_POST['email'], ':pword' => $_POST['pword'],':customer_id' => $insertId));
-			
-			$_SESSION['customerId'] = $insertId;
+			if(Account::isExist(array(':email' => $_POST['email'])))
+			{
+				$redirect .= '&emailError=Account already exist';
+			}
+			else
+			{
+				// Set customer and get customer id.
+				$_SESSION['customerId'] = Customer::setCustomer(array(':fname' => $_POST['fname'], ':lname' => $_POST['lname']), SPDO::getInstance());
 				
-			header("Location: http://student.labranet.jamk.fi/~H9575/IIM50300-HTYO/items.php");
-			die();
+				// Set customer id to account.
+				Account::setAccount(array(':email' => $_POST['email'], ':pword' => $_POST['pword'], ':customer_id' => $_SESSION['customerId']), SPDO::getInstance());
+				
+				// Set redirect.
+				$redirect = 'account/items.php';
+			}
 		}
 	}
+	
+	// Redirect.
+	header("Location: " . $redirect) and exit();
 }
-
-// http://stackoverflow.com/questions/14523468/redirecting-to-previous-page-after-login-php
 
 ?>

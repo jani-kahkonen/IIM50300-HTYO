@@ -1,3 +1,5 @@
+mysql -u H9575 -p7ahaqDkFKfb2Oljcrm4J9avJBY0b5SR8 -h mysql.labranet.jamk.fi
+
 -- -----------------------------------------------------
 -- Table customer
 -- -----------------------------------------------------
@@ -37,6 +39,7 @@ CREATE TABLE product
 (
 	id INT NOT NULL AUTO_INCREMENT,
 	iname VARCHAR(64) NOT NULL,
+	rdate DATETIME NOT NULL,
 	PRIMARY KEY (id)
 );
 -- -----------------------------------------------------
@@ -52,25 +55,50 @@ CREATE TABLE product_subscription
 	CONSTRAINT fk_product_subscription_2 FOREIGN KEY (product_id) REFERENCES product (id)
 );
 
-INSERT INTO product (iname) Values ('tuote_1');
+INSERT INTO product (iname, rdate) Values ('tuote_A','2014.3.19');
 
-INSERT INTO product (iname) Values ('tuote_2');
+INSERT INTO product (iname, rdate) Values ('tuote_B','2015.8.26');
 
-INSERT INTO product (iname) Values ('tuote_3');
+INSERT INTO product (iname, rdate) Values ('tuote_C','2016.4.15');
 
-INSERT INTO customer (fname, lname) Values ('etunimi_1','sukunimi_1');
 
-INSERT INTO account (email, pword, customer_id) Values ('test-1@hotmail.com','salasana', 1);
+INSERT INTO customer (fname, lname) Values ('test','test');
+
+INSERT INTO account (email, pword, customer_id) Values ('test@outlook.com','test', 1);
 
 INSERT INTO subscription (customer_id) Values (1);
 
 INSERT INTO product_subscription (subscription_id, product_id) Values (1, 1);
 
+SELECT product.iname FROM product_subscription
+INNER JOIN product on product.id = product_subscription.product_id
 
-INSERT INTO customer (fname, lname) Values ('etunimi_2','sukunimi_2');
+SELECT customer.fname FROM subscription
+INNER JOIN customer on customer.id = subscription.customer_id
 
-INSERT INTO account (email, pword, customer_id) Values ('test-2@hotmail.com','salasana', 2);
+/* */
 
-INSERT INTO subscription (customer_id) Values (2);
+SELECT product.iname FROM product_subscription
+INNER JOIN product on product.id = product_subscription.product_id
 
-INSERT INTO product_subscription (subscription_id, product_id) Values (2, 2);
+SELECT account.email FROM subscription
+INNER JOIN account on account.id = subscription.customer_id
+
+/* */
+
+SELECT account.email, product.iname FROM subscription, product_subscription
+INNER JOIN account on account.id = subscription.customer_id
+INNER JOIN product on product.id = product_subscription.product_id
+
+
+SELECT account.email, product.iname FROM product_subscription
+INNER JOIN subscription on subscription.id = product_subscription.subscription_id
+INNER JOIN account on account.id = subscription.customer_id
+INNER JOIN product on product.id = product_subscription.product_id
+
+
+
+
+
+ 
+

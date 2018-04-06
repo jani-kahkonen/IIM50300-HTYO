@@ -1,31 +1,19 @@
 <?php
 
-class Item
-{
-	private $id, $iname, $rdate;
-	
-	public function getId()
-	{
-		return $this->id;
-	}
-	
-	public function getIname()
-	{
-		return $this->iname;
-	}
-	
-	public function getRdate()
-	{
-		return $this->rdate;
-	}	
-}
-
-require_once 'db-init.php';
+require_once '../database/db-init.php';
+require_once '../class/class.php';
 
 session_start();
 
+if(!isset($_SESSION['customerId']))
+{
+	// If not customerId, redirect to login and exit.
+	header("Location: ../login.php") and exit();
+}
+
 if(isset($_SESSION['cart']))
 {
+	// Set item to cart.
 	if(isset($_POST['add']))
 	{
 		$sth = $dbh->prepare('SELECT * FROM product WHERE id=:id');
@@ -48,7 +36,7 @@ $sth->execute();
 
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="styles.css"> 
+		<link rel="stylesheet" type="text/css" href="../styles/styles.css"> 
 	</head>
 	<body>
 		<div id="wrapper">
@@ -59,6 +47,7 @@ $sth->execute();
 					<li><a href="items.php" class="active">AllProducts</a></li>
 					<li><a href="cart.php">MyCart</a></li>
 					<li><a href="account.php">MyAccount</a></li>
+					<li><a href="logout.php">Logout</a></li>
 				</ul>
 			</div>
 			

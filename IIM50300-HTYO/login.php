@@ -1,23 +1,8 @@
 <!DOCTYPE html>
 
-<?php
-
-echo '<input type="hidden" name="location" value="';
-
-if(isset($_GET['location']))
-{
-	echo htmlspecialchars($_GET['location']);
-}
-
-echo '" />';
-
-//  <input type="hidden" name="location" value="comment.php?articleid=17" />
-
-?>
-
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="stylesheet" type="text/css" href="styles/styles.css">
 		<style>
 		#wrapper{
 			width: 40%;
@@ -30,6 +15,9 @@ echo '" />';
 		}
 		input{
 			width: 150px;
+		}
+		.error{
+			color: #FF0000;
 		}
 		</style>
 	</head>
@@ -48,15 +36,19 @@ echo '" />';
 				<table>
 					<tr valign="top">
 						<td align="right">Email:</td>
-						<td><input type="text" name="email" required></td>
+						<td><input type="text" name="email" value="test@outlook.com" required></td>
 					</tr>
 					<tr valign="top">
 						<td align="right">Pword:</td>
-						<td><input type="text" name="pword" required></td>
+						<td><input type="password" name="pword" value="test" required></td>
 					</tr>
 					<tr valign="top">
 						<td align="right"></td>
 						<td><input type="submit" name="login" value="Login"></td>
+					</tr>
+					<tr valign="top">
+						<td align="right"></td>
+						<td><span class="error"><?php if(isset($_GET['loginError'])) echo $_GET['loginError']; ?></span></td>
 					</tr>
 				</table>
 			</form>

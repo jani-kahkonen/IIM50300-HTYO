@@ -1,73 +1,8 @@
-<?php
-
-$fname = "";
-$lname = "";
-$email = "";
-$pword = "";
-
-$fnameErr = "";
-$lnameErr = "";
-$emailErr = "";
-$pwordErr = "";
-
-function test_input($data)
-{
-	$data = trim($data);
-	$data = stripslashes($data);
-	return htmlspecialchars($data);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST")
-{
-	if (empty($_POST["fname"]))
-	{
-		$fnameErr = "Required";
-	}
-	else
-	{		
-		if (!preg_match("/^[a-zA-Z ]*$/", test_input($_POST["fname"])))
-		{
-			$fnameErr = "Only letters";
-		}
-	}
-	
-	if (empty($_POST["lname"]))
-	{
-		$lnameErr = "Required";
-	}
-	else
-	{	
-		if (!preg_match("/^[a-zA-Z ]*$/", test_input($_POST["lname"])))
-		{
-			$lnameErr = "Only letters";
-		}
-	}
-	
-	if (empty($_POST["email"]))
-	{
-		$emailErr = "Required";
-	}
-	else
-	{		
-		if (!filter_var(test_input($_POST["email"]), FILTER_VALIDATE_EMAIL))
-		{
-			$emailErr = "Invalid format";
-		}
-	}
-	
-	if (empty($_POST["pword"]))
-	{
-		$pwordErr = "Required";
-	}
-}
-
-?>
-
 <!DOCTYPE html>
 
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="stylesheet" type="text/css" href="styles/styles.css">
 		<style>
 		#wrapper{
 			width: 40%;
@@ -101,19 +36,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 				<table>
 					<tr valign="top">
 						<td align="right">Fname:</td>
-						<td><input type="text" name="fname"><span class="error"><?php echo $fnameErr; ?></span></td>
+						<td><input type="text" name="fname" value="<?php if(isset($_GET['fname'])) echo $_GET['fname']; ?>"><span class="error"><?php if(isset($_GET['fnameError'])) echo $_GET['fnameError']; ?></span></td>
 					</tr>
 					<tr valign="top">
 						<td align="right">Lname:</td>
-						<td><input type="text" name="lname"><span class="error"><?php echo $lnameErr; ?></span></td>
+						<td><input type="text" name="lname" value="<?php if(isset($_GET['lname'])) echo $_GET['lname']; ?>"><span class="error"><?php if(isset($_GET['lnameError'])) echo $_GET['lnameError']; ?></span></td>
 					</tr>
 					<tr valign="top">
 						<td align="right">Email:</td>
-						<td><input type="text" name="email"><span class="error"><?php echo $emailErr; ?></span></td>
+						<td><input type="text" name="email" value="<?php if(isset($_GET['email'])) echo $_GET['email']; ?>"><span class="error"><?php if(isset($_GET['emailError'])) echo $_GET['emailError']; ?></span></td>
 					</tr>
 					<tr valign="top">
 						<td align="right">Pword:</td>
-						<td><input type="text" name="pword"><span class="error"><?php echo $pwordErr; ?></span></td>
+						<td><input type="password" name="pword"><span class="error"><?php if(isset($_GET['pwordError'])) echo $_GET['pwordError']; ?></span></td>
 					</tr>
 					<tr valign="top">
 						<td align="right"></td>
